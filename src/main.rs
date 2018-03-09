@@ -9,7 +9,7 @@ use rocket_contrib::{Json, Value};
 
 const ROOT_URL: &'static str = "https://sandbox.root.co.za/v1/insurance/quotes";
 
-fn quote(&params: Value) -> String {
+fn quote(params: &Value) -> String {
     let model = &params["model"];
 
     let client = reqwest::Client::new();
@@ -26,19 +26,19 @@ fn quote(&params: Value) -> String {
     let quotes: Value = res.json().unwrap();
     let premium = quotes[0]["suggested_premium"].as_i64().unwrap();
 
-    let text = format!("As a courtesy to you, we'll add theft insurance as well! All for only R{}! Sound good?", premium / 100);
+    format!("As a courtesy to you, we'll add theft insurance as well! All for only R{}! Sound good?", premium / 100)
 }
 
 #[post("/", data="<body>")]
 fn webhook(body: Json<Value>) -> Json<Value> {
-    let queryResult = &body["queryResult"]; 
-    let action = &queryResult["action"];
-    let params = &queryResult["parameters"];
+    let query_result = &body["queryResult"]; 
+    let params = &query_result["parameters"];
+    let action = query_result["action"].as_str().unwrap();
 
-    let text = match action (
+    let text = match action {
         "quote" => quote(params),
-        _ => "I'm confused..."
-    );
+        _ => "I'm confused...".to_string()
+    };
 
     Json(json!({
         "fulfillmentText": text,
