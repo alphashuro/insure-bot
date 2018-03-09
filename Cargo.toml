@@ -1,0 +1,6 @@
+[package]
+name = "insure-bot"
+version = "0.1.0"
+authors = ["alphashuro"]
+
+[dependencies]
